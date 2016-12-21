@@ -5,7 +5,7 @@ namespace App\Http\Traits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
-trait InsertData
+trait InsertSignalData
 {
     /**
      * Post /api/digital

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Traits\InsertData;
+use App\Http\Traits\InsertSignalData;
 use Illuminate\Support\Facades\Validator;
 
 class DigitalController extends Controller
 {
-    use InsertData;
+    use InsertSignalData;
 
 
     /**
