@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Facades\Response;
 
 class CheckAdmin
 {
@@ -17,6 +18,6 @@ class CheckAdmin
     {
         if (auth()->check() && auth()->user()->id == 1)
             return $next($request);
-        exit('unauthenticated');
+        Response::make(['message' => '无权限'])->throwResponse();
     }
 }

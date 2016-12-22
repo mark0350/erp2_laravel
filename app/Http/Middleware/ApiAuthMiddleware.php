@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Support\Facades\Response;
 
@@ -63,6 +62,6 @@ class ApiAuthMiddleware
                 return $this->auth->shouldUse($guard);
             }
         }
-        exit('unauthenticated');
+        Response::make(['message' => '未验证'])->throwResponse();
     }
 }
