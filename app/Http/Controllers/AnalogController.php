@@ -3,25 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Http\Traits\InsertSignalData;
-use Illuminate\Support\Facades\Validator;
 
 class AnalogController extends Controller
 {
     use InsertSignalData;
 
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    protected function validator(array $data)
+    protected $rule;
+
+    public function __construct()
     {
         // don't format this class since the rule:in should avoid space
-        return Validator::make($data, [
+        $this->rule = [
             'table_name' => 'required|in:Paper_machine_speed,Sizing_machine_width,Paper_substance,Paper_moisture,'.
                 'Paper_thick,Water_consumption,Steam_consumption,Electricity_consumption,Sewage_discharge',
             'value' => 'required',
-        ]);
+        ];
     }
+
 }
