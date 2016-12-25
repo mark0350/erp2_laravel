@@ -20,3 +20,4 @@ Route::get('/user', function (Request $request) {
 Route::post('/digital', 'DigitalController@create')->middleware('api.auth:api','isAdmin');
 Route::post('/analog', 'AnalogController@create')->middleware('api.auth:api','isAdmin');
 Route::post('/production', 'ProductionController@create')->middleware('api.auth:api','isAdmin');
+Route::post('/wechat', 'WechatController@response');
