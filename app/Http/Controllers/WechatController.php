@@ -25,7 +25,7 @@ class WechatController extends Controller
         $string = "纸机产品状况\n";
         $string .= date("Y-m-d  H:i:s") . "\n";
         $string .= "---------------------\n";
-        $data = Paper_substance::where('start_time', '<', time())->where('end_time','>', strtotime('today'))->orderBy("end_time", "DESC")->orderBy("start_time"," DESC")->first();
+        $data = Paper_substance::Latest(strtotime('today'), time());
 //        dd(DB::getQueryLog());
         if (is_bool($data)|| empty($data)) {
             $string .= "定量：" . "未知" . "\n";
