@@ -3,19 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Http\Wechat;
+use App\Paper_moisture;
 use App\Paper_substance;
+use App\Paper_thick;
+use App\Sizing_machine_status;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class WechatController extends Controller
-{
-    protected $wechatObj;
-
-    public function __construct(Wechat $wechatObj)
+    class WechatController extends Controller
     {
-        $this->wechatObj = $wechatObj;
-       
-    }
+        protected $wechatObj;
+
+        public function __construct(Wechat $wechatObj)
+        {
+            $this->wechatObj = $wechatObj;
+
+        }
     public function machine_status()
     {
 
@@ -25,7 +28,7 @@ class WechatController extends Controller
         $string = "纸机产品状况\n";
         $string .= date("Y-m-d  H:i:s") . "\n";
         $string .= "---------------------\n";
-        $data = Paper_substance::Latest(strtotime('today'), time());
+        $data = Paper_substance::DataBetween(strtotime('today'), time())->first();
 //        dd(DB::getQueryLog());
         if (is_bool($data)|| empty($data)) {
             $string .= "定量：" . "未知" . "\n";
@@ -37,6 +40,80 @@ class WechatController extends Controller
 
         return $string;
     }
+
+    public function production_status()
+    {
+//        date_default_timezone_set('PRC');
+
+
+        $string = "纸机产品状况\n";
+        $string .= date("Y-m-d  H:i:s") . "\n";
+        $string .= "---------------------\n";
+        $data = Paper_substance::DataBetween(strtotime('today'), time())->first();
+        if (empty($data)) {
+            $string .= "定量：" . "未知" . "\n";
+        } else {
+            dd('null is not empty');
+            $string .= "定量：" . round($data->value, 1) . " 克\n";
+        }
+
+        $data = Paper_moisture::DataBetween(strtotime('today'), time())->first();
+
+        if (empty($data)) {
+            $string .= "水分：" . "未知" . "\n";
+        } else {
+            $string .= "水分：" . round($data->value, 1) . " %\n";
+        }
+
+        $data = Paper_thick::DataBetween(strtotime('today'), time())->first();
+        if (empty($data)) {
+            $string .= "厚度：" . "未知" . "\n";
+        } else {
+            $string .= "厚度：" . round($data->value, 1) . " 微米\n";
+        }
+
+        return $string;
+    }
+
+    public function breaking_status()
+    {
+//        date_default_timezone_set('PRC');
+
+        $string = "纸机断纸状况\n";
+        $string .= date("Y-m-d  H:i:s") . "\n";
+        $string .= "---------------------\n";
+        $data = Sizing_machine_status::lengthOfStatus(strtotime('today'), time(),0);
+        $temp = $data;
+        if (is_bool($data)||$data->isEmpty()) {
+            $string .= "连续时间：" . "未知" . "\n";
+        } else {
+            $string .= "连续时间：" . round($data/3600, 2) . " 小时\n";
+        }
+
+        $data = Sizing_machine_status::DataBetween(strtotime('today'), time())->get();
+        if ($data->isEmpty()) {
+            $string .= "断纸次数：" . "未知" . "\n";
+        } else {
+            $string .= "断纸次数：" . $data->where('value',0)->count() . " 次\n";
+        }
+
+        $data = Sizing_machine_status::lengthOfStatus(strtotime('today'), time(),1);
+        if (is_bool($data)||$data->isEmpty()) {
+            $string .= "断纸时间：" . "未知" . "\n";
+        } else {
+            $string .= "断纸时间：" . round($data/60, 2) . " 小时\n";
+        }
+
+
+        if (is_bool($temp)||$data->isEmpty()) {
+            $string .= "运行率：" . "未知" . "\n";
+        } else {
+            $string .= "运行率：" . round(($temp / (time() - strtotime('today'))),4) * 100 . " %\n";
+        }
+
+        return $string;
+    }
+
 
     public function response()
     {

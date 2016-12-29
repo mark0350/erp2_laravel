@@ -17,13 +17,13 @@ return [
  	|		'logcallback'=>'logg', //调试输出方法，需要有一个string类型的参数
  	|	);
     */
-    'app' => [
+    'app' => array(
 
         'token' => env('WECHAT_TOKEN',''),
         'encodingaeskey' => env('WECHAT_ENCODINGAESKEY',''),
         'appid' => env('WECHAT_APPID',''),
         'appsecret' => env('WECHAT_APPSECRET',''),
 
-    ]
+    )
 
 ];
