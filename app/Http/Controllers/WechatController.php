@@ -10,15 +10,16 @@ use App\Sizing_machine_status;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-    class WechatController extends Controller
+class WechatController extends Controller
+{
+    protected $wechatObj;
+
+    public function __construct(Wechat $wechatObj)
     {
-        protected $wechatObj;
+        $this->wechatObj = $wechatObj;
 
-        public function __construct(Wechat $wechatObj)
-        {
-            $this->wechatObj = $wechatObj;
+    }
 
-        }
     public function machine_status()
     {
 
@@ -30,12 +31,11 @@ use Illuminate\Support\Facades\DB;
         $string .= "---------------------\n";
         $data = Paper_substance::DataBetween(strtotime('today'), time())->first();
 //        dd(DB::getQueryLog());
-        if (is_bool($data)|| empty($data)) {
+        if (is_bool($data) || empty($data)) {
             $string .= "定量：" . "未知" . "\n";
         } else {
             $string .= "定量：" . round($data, 1) . " 克\n";
         }
-
 
 
         return $string;
@@ -82,39 +82,106 @@ use Illuminate\Support\Facades\DB;
         $string = "纸机断纸状况\n";
         $string .= date("Y-m-d  H:i:s") . "\n";
         $string .= "---------------------\n";
-        $data = Sizing_machine_status::lengthOfStatus(strtotime('today'), time(),0);
+        $data = Sizing_machine_status::lengthOfStatus(strtotime('today'), time(), 1);
         $temp = $data;
-        if (is_bool($data)||$data->isEmpty()) {
+        if (is_bool($data)) {
             $string .= "连续时间：" . "未知" . "\n";
         } else {
-            $string .= "连续时间：" . round($data/3600, 2) . " 小时\n";
+            $string .= "连续时间：" . round($data / 3600, 2) . " 小时\n";
         }
 
         $data = Sizing_machine_status::DataBetween(strtotime('today'), time())->get();
         if ($data->isEmpty()) {
             $string .= "断纸次数：" . "未知" . "\n";
         } else {
-            $string .= "断纸次数：" . $data->where('value',0)->count() . " 次\n";
+            $string .= "断纸次数：" . $data->where('value', 0)->count() . " 次\n";
         }
 
-        $data = Sizing_machine_status::lengthOfStatus(strtotime('today'), time(),1);
-        if (is_bool($data)||$data->isEmpty()) {
+        $data = Sizing_machine_status::lengthOfStatus(strtotime('today'), time(), 0);
+        if (is_bool($data)) {
             $string .= "断纸时间：" . "未知" . "\n";
         } else {
-            $string .= "断纸时间：" . round($data/60, 2) . " 小时\n";
+            $string .= "断纸时间：" . round($data / 3600, 2) . " 小时\n";
         }
 
-
-        if (is_bool($temp)||$data->isEmpty()) {
+        if (is_bool($temp)) {
             $string .= "运行率：" . "未知" . "\n";
         } else {
-            $string .= "运行率：" . round(($temp / (time() - strtotime('today'))),4) * 100 . " %\n";
+            $string .= "运行率：" . round(($temp / (time() - strtotime('today'))), 4) * 100 . " %\n";
         }
 
         return $string;
     }
 
+    public function yesterday_statistics()
+    {
+        date_default_timezone_set('PRC');
 
+
+        $string = "纸机状态昨日统计\n";
+        $string .= date("Y-m-d  H:i:s") . "\n";
+        $string .= "---------------------\n";
+        $data = Sizing_machine_status::lengthOfStatus(strtotime('yesterday'), strtotime('today'), 0);
+        if (is_bool($data)) {
+            $string .= "断纸时间：" . "未知" . "\n";
+        } else {
+            $string .= "断纸时间：" . round($data / 3600, 2) . " 小时\n";
+        }
+
+        $data = Sizing_machine_status::lengthOfStatus(strtotime('yesterday'), strtotime('today'), 1);
+        if (is_bool($data)) {
+            $string .= "运行率：" . "未知" . "\n";
+        } else {
+            $string .= "运行率：" . round(($data / (strtotime('today') - strtotime('yesterday'))), 4) * 100 . " %\n";
+        }
+        return $string;
+    }
+
+    public function monthly_statistics()
+    {
+        date_default_timezone_set('PRC');
+
+
+        $string = "纸机状态月统计\n";
+        $string .= date("Y-m-d  H:i:s") . "\n";
+        $string .= "---------------------\n";
+        $data = Sizing_machine_status::lengthOfStatus(strtotime('first day of this month',strtotime('today')), time(),0);
+        if (is_bool($data)) {
+            $string .= "断纸时间：" . "未知" . "\n";
+        } else {
+            $string .= "断纸时间：" . round($data / 3600, 2) . " 小时\n";
+        }
+        $data = Sizing_machine_status::lengthOfStatus(strtotime('first day of this month',strtotime('today')), time(),1);
+        if (is_bool($data)) {
+            $string .= "运行率：" . "未知" . "\n";
+        } else {
+            $string .= "运行率：" . round(($data / (time() - strtotime('first day of this month',strtotime('today')))), 4) * 100 . " %\n";
+        }
+        return $string;
+    }
+
+    public function yearly_statistics()
+    {
+        date_default_timezone_set('PRC');
+
+
+        $string = "纸机状态年统计\n";
+        $string .= date("Y-m-d  H:i:s") . "\n";
+        $string .= "---------------------\n";
+        $data =  Sizing_machine_status::lengthOfStatus(strtotime('first day of January ' . date('Y')), time(),0);
+        if (is_bool($data)) {
+            $string .= "断纸时间：" . "未知" . "\n";
+        } else {
+            $string .= "断纸时间：" . round($data / 3600, 2) . " 小时\n";
+        }
+        $data = Sizing_machine_status::lengthOfStatus(strtotime('first day of January ' . date('Y')), time(),1);
+        if (is_bool($data)) {
+            $string .= "运行率：" . "未知" . "\n";
+        } else {
+            $string .= "运行率：" . round(($data / (time() - strtotime('first day of January ' . date('Y')))), 4) * 100 . " %\n";
+        }
+        return $string;
+    }
     public function response()
     {
         date_default_timezone_set('PRC');

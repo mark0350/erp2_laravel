@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Sizing_machine_status extends Model
 {
     use ScopeModel;
-    protected $table = 'roll_change_status';
+    protected $table = 'sizing_machine_status';
     protected $fillable = ['value', 'start_time', 'end_time', 'duration'];
     public $timestamps = false;
 
@@ -17,8 +17,14 @@ class Sizing_machine_status extends Model
         $data = self::DataBetween($start_time, $end_time)->get();
         if (is_bool($data) || $data->isEmpty())
             return false;
-        $data->first()->start_time <= $start_time ?: $data->first()->start_time = $start_time;
-        $data->last()->end_time >= $end_time ?: $data->last()->end_time = $end_time;
+        if($data->first()->start_time <= $start_time){
+            $data->first()->start_time = $start_time;
+            $data->first()->duration = ($data->first()->end_time - $data->first()->start_time);
+        }
+        if($data->last()->end_time >= $end_time){
+            $data->last()->end_time = $end_time;
+            $data->last()->duration = ($data->last()->end_time - $data->last()->end_time);
+        }
         return $data->where('value',$value)->sum('duration');
 
     }
